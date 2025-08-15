@@ -5,11 +5,11 @@ class DiscoveryClient:
     def __init__(self, fastmcp_client):
         self._client = fastmcp_client
 
-    def list_tools(self):
-        return self._client.tools.list()
+    async def list_tools(self):
+        return await self._client.list_tools()
 
-    def list_resources(self):
-        return self._client.resources.list()
+    async def list_resources(self):
+        return await self._client.list_resources()
 
-    def list_prompts(self):
-        return self._client.prompts.list()
+    async def list_prompts(self):
+        return await self._client.list_prompts()

@@ -1,14 +1,6 @@
 import pytest
 from server.app.prompts import register_prompts
-
-class DummyServer:
-    def __init__(self):
-        self._prompts = {}
-    def prompt(self, name, description):
-        def decorator(fn):
-            self._prompts[name] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_hello_prompt():
     server = DummyServer()

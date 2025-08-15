@@ -5,8 +5,14 @@ class ResourcesClient:
     def __init__(self, fastmcp_client):
         self._client = fastmcp_client
 
-    def get(self, resource_name):
+    async def get(self, resource_name):
         """
         Fetch a resource by name or URI.
         """
-        return getattr(self._client.resources, resource_name)()
+        return await self._client.read_resource(resource_name)
+
+    async def list(self):
+        """
+        List available resources (with metadata).
+        """
+        return await self._client.list_resources()

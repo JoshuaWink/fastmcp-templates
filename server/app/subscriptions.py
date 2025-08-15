@@ -20,15 +20,13 @@ def register_subscriptions(server):
         name="demo_subscription",
         description="Demo subscription that emits events with a server-side timestamp."
     )
-    def demo_subscription_handler(payload: Dict[str, Any] = None) -> Dict[str, Any]:
+    async def demo_subscription_handler(payload: Dict[str, Any] = None):
         """
-        Demo subscription event handler that emits an event with a server-side timestamp.
-        Best practice: Always include a 'timestamp' field in subscription events so clients can annotate
-        both the send and receive times for full event traceability.
+        Demo subscription event handler that emits multiple events with a server-side timestamp.
         """
-        event = {
-            "event": "demo_event",
-            "data": payload or {},
-            "timestamp": current_utc_timestamp(),  # Server-side event time
-        }
-        return event
+        for i in range(3):
+            yield {
+                "event": f"demo_event_{i}",
+                "data": payload or {},
+                "timestamp": current_utc_timestamp(),
+            }

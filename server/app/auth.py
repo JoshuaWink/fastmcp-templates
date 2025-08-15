@@ -10,17 +10,8 @@ def register_auth(server):
     """
     Register authentication providers or session logic with the FastMCP server instance.
     """
-    @server.auth(
-        name="demo_auth_provider",
-        description="Demo in-memory authentication provider."
-    )
-    def demo_auth_provider(username: str, password: str) -> bool:
-        """
-        Demo in-memory authentication provider.
-        Args:
-            username (str): Username.
-            password (str): Password.
-        Returns:
-            bool: True if credentials match demo user, else False.
-        """
-        return username == "demo_user" and password == "password123"
+    @server.auth_provider(name="demo_auth", description="Demo static token auth provider.")
+    def demo_auth(token: str = None):
+        if token == "demo-token":
+            return {"user": "demo"}
+        raise Exception("Invalid token")

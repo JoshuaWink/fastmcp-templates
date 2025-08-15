@@ -1,20 +1,13 @@
 import pytest
 from server.app.schema import register_schema
-
-class DummyServer:
-    def __init__(self):
-        self._schemas = {}
-    def schema(self, name, description):
-        def decorator(fn):
-            self._schemas[name] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_demo_schema():
     server = DummyServer()
     register_schema(server)
-    assert "demo_schema" in server._schemas
-    result = server._schemas["demo_schema"]()
+    # The resource is registered under the URI key
+    assert "schema://hello_tool" in server._resources
+    result = server._resources["schema://hello_tool"]()
     assert isinstance(result, dict)
-    assert result.get("title") == "DemoSchema"
     assert "type" in result
+    assert "properties" in result

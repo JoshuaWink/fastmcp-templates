@@ -7,6 +7,16 @@ Area of Responsibility: Tools
 """
 
 def register_tools(server):
+    @server.tool(name="echo", description="Echoes back the provided text.")
+    def echo(text: str) -> dict:
+        """
+        Echo tool that returns the input text.
+        Args:
+            text (str): Text to echo.
+        Returns:
+            dict: {"text": echoed text}
+        """
+        return {"text": text}
     """
     Register all server-side tools with the FastMCP server instance.
     """
@@ -20,3 +30,7 @@ def register_tools(server):
             str: Greeting message.
         """
         return f"Hello, {name}!"
+
+    @server.tool(name="raise_error", description="Tool that always raises an error for testing.")
+    def raise_error():
+        raise Exception("This is a test error from raise_error tool.")

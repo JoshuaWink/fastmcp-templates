@@ -1,14 +1,6 @@
 import pytest
 from server.app.tools import register_tools
-
-class DummyServer:
-    def __init__(self):
-        self._tools = {}
-    def tool(self, name, description):
-        def decorator(fn):
-            self._tools[name] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_hello_tool():
     server = DummyServer()
