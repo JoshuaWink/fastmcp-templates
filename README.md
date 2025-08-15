@@ -5,66 +5,61 @@
 
 ---
 
-## Why fastmcp-templates?
+# fastmcp-templates
 
-This repo is for engineers and product teams who want:
-- A clear, modular starting point for MCP client/server projects
-- Best practices for context management (LLM, agent, or workflow)
-- Side-by-side demos of config-driven (YAML) and self-documenting (modulink-py) context flows
-- Annotated code, real-world patterns, and testable examples
+A reference kit for building robust, modular Model Context Protocol (MCP) clients and servers using FastMCP.
 
----
+This repository is organized so teams can quickly bootstrap a client, a server, or explore the accompanying design documents and tests.
 
-## What's Inside
+## Overview
 
-- `client/` — Modular MCP client with pluggable tools, resources, prompts, notifications, logging, elicitation, and discovery
-- `server/` — Minimal, declarative FastMCP server with all business logic in `app/`
-- `document/context_management_approaches.md` — Hands-on guide: config-driven vs. self-documenting context management
-- `tests/` — Pytest suite for context, client, and server logic
-- `document/` — Architecture, guides, and annotated flows
-
----
+- `client/` — MCP client implementation and helper subclients. See `client/README.md` for usage and examples.
+- `server/` — FastMCP server template and example `app/` modules. See `server/README.md` for running and extending.
+- `document/` — Architecture notes, guides, and comparison essays; `document/README.md` summarizes the docs.
+- `tests/` — Pytest-based unit and integration tests that exercise client/server flows and subscriptions.
 
 ## Quickstart
 
-1. **Clone the repo:**
-	```sh
-	git clone https://github.com/JoshuaWink/fastmcp-templates.git
-	cd fastmcp-templates
-	```
-2. **Set up your environment:**
-	```sh
-	python -m venv .venv
-	source .venv/bin/activate
-	pip install -r requirements.txt  # or see pyproject.toml
-	```
-3. **Explore the code:**
-	- Start with `client/client.py` and `server/server.py`
-	- See `document/context_management_approaches.md` for context patterns
-4. **Run the tests:**
-	```sh
-	pytest
-	```
+1. Clone and enter the repo:
 
----
+```sh
+git clone https://github.com/JoshuaWink/fastmcp-templates.git
+cd fastmcp-templates
+```
 
-## Context Management: Two Approaches
+2. Create and activate a virtual environment:
 
-See [`document/context_management_approaches.md`](document/context_management_approaches.md) for:
-- **Config-driven (YAML):** Explicit, reorderable, non-dev friendly
-- **Self-documenting chain:** Code-as-truth, always up to date, dev friendly
+```sh
+python -m venv .venv
+source .venv/bin/activate
+```
 
----
+3. Install dependencies (project uses pyproject.toml where possible):
 
-## When to Use This Repo
+```sh
+pip install -r requirements.txt
+```
 
-- Prototyping a new MCP client or server
-- Teaching best practices for LLM/agent context flows
-- Comparing config vs. code-driven context management
-- Building production-ready, modular FastMCP apps
+4. Run the test suite:
 
----
+```sh
+pytest -q
+```
+
+5. Read the area docs:
+
+- Client: `client/README.md`
+- Server: `server/README.md`
+- Docs: `document/README.md`
+
+## Templates & Usage
+
+This repo is marked as a GitHub template. Use the green "Use this template" button on GitHub to scaffold a new repo.
+
+## Contributing
+
+Please open issues or pull requests. Tests are required for new features.
 
 ## License
 
-Apache-2.0 — use, adapt, and share.
+Apache-2.0

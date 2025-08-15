@@ -70,3 +70,21 @@ class MCPClient {
 - `NotificationsClient` is an extension of `SubscriptionClient` (special schema for notifications).
 - All core clients can be reasoned about as implementing one of: `ISubscription`, `IToolCall`, or `IResource`.
 - Meta/support classes (discovery, elicitation, logging, router, orchestrator) do not fit the main inheritance tree but are essential for full client functionality.
+
+# Client Inheritance Notes
+
+This document illustrates patterns for composing client subcomponents and extending behavior.
+
+Example (TypeScript-like pseudocode):
+
+```typescript
+class BaseClient {
+  constructor(config) { this.config = config }
+}
+
+class ToolsClient extends BaseClient {
+  call(name, args) { /* ... */ }
+}
+```
+
+In Python, prefer composition over inheritance for clarity: `MCPClient` composes `ToolsClient`, `ResourcesClient`, etc.

@@ -1,3 +1,17 @@
+# Client Subscriptions
+
+This file documents subscription patterns for client-side code.
+
+Example:
+
+```python
+# subscribe and process events
+async for ev in client.subscriptions.listen("demo_subscription"):
+    print(ev)
+```
+
+See `client/README.md` and `tests/client` for concrete examples.
+
 # Client-Side Subscriptions: Timestamp Annotation Best Practice
 
 ## Overview

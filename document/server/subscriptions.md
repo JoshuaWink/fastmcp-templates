@@ -64,3 +64,19 @@ def on_event(event):
 - **Use UTC and a consistent format.**
 
 This pattern ensures robust, debuggable, and LLM-friendly event streams in your MCP server.
+
+# Server Subscriptions
+
+This document explains how to expose async generator subscriptions from the server.
+
+Example:
+
+```python
+@server.subscription(name="demo_subscription")
+async def demo_subscription(params=None):
+    for i in range(3):
+        yield {"event": f"demo_{i}"}
+        await asyncio.sleep(0.1)
+```
+
+Clients can `async for` over the returned generator when calling the subscription.
