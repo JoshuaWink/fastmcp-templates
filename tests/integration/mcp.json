@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "local-echo-server": {
+      "type": "stdio",
+      "command": "/Users/joshuawink/Documents/github/fastmcp-templates/.venv/bin/python",
+      "args": ["server/server.py"],
+      "description": "Test MCP server with echo tool"
+    }
+  }
+}

@@ -1,14 +1,6 @@
 import pytest
 from server.app.resources import register_resources
-
-class DummyServer:
-    def __init__(self):
-        self._resources = {}
-    def resource(self, uri, name, description):
-        def decorator(fn):
-            self._resources[uri] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_hello_resource():
     server = DummyServer()

@@ -1,14 +1,6 @@
 import pytest
 from server.app.notifications import register_notifications
-
-class DummyServer:
-    def __init__(self):
-        self._subscriptions = {}
-    def subscription(self, name, description):
-        def decorator(fn):
-            self._subscriptions[name] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_demo_notification_handler():
     server = DummyServer()

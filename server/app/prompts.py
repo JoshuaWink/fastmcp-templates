@@ -10,7 +10,8 @@ def register_prompts(server):
     """
     Register all prompt templates or logic with the FastMCP server instance.
     """
-    @server.prompt(name="hello_prompt", description="Demo prompt that formats a greeting.")
+
+    # Register hello_prompt as both a prompt and a tool
     def hello_prompt(name: str = "World") -> str:
         """
         Demo prompt that formats a greeting with a name argument.
@@ -20,3 +21,6 @@ def register_prompts(server):
             str: Greeting message.
         """
         return f"Prompt says: Hello, {name}!"
+
+    server.prompt(name="hello_prompt", description="Demo prompt that formats a greeting.")(hello_prompt)
+    server.tool(name="hello_prompt", description="Tool wrapper for prompt 'hello_prompt'.")(hello_prompt)

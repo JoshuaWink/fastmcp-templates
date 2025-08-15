@@ -1,14 +1,6 @@
 import pytest
 from server.app.error_handling import register_error_handlers
-
-class DummyServer:
-    def __init__(self):
-        self._error_handlers = {}
-    def error_handler(self, name, description):
-        def decorator(fn):
-            self._error_handlers[name] = fn
-            return fn
-        return decorator
+from tests.helpers import DummyServer
 
 def test_demo_error_handler():
     server = DummyServer()
@@ -17,4 +9,5 @@ def test_demo_error_handler():
     # Simulate an error
     error = Exception("Test error")
     result = server._error_handlers["demo_error_handler"](error)
-    assert result == {"error": "Test error"}
+    assert result["error"] == "Test error"
+    assert result["type"] == "Exception"

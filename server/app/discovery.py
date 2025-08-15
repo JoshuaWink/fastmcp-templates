@@ -10,17 +10,20 @@ def register_discovery(server):
     """
     Register discovery logic with the FastMCP server instance.
     """
-    @server.tool(name="list_demo_capabilities", description="Lists registered demo capabilities.")
+    @server.tool(name="list_demo_capabilities", description="Lists all registered capabilities.")
     def list_demo_capabilities() -> dict:
         """
-        Demo discovery endpoint that lists registered demo capabilities.
-        Returns:
-            dict: Names of demo tools, resources, prompts, etc.
+        Lists all registered tools, resources, prompts, subscriptions, and auth providers.
         """
+        tools = list(getattr(server, '_tools', {}).keys())
+        resources = list(getattr(server, '_resources', {}).keys())
+        prompts = list(getattr(server, '_prompts', {}).keys())
+        subscriptions = list(getattr(server, '_subscriptions', {}).keys()) if hasattr(server, '_subscriptions') else []
+        auth = list(getattr(server, '_auth_providers', {}).keys()) if hasattr(server, '_auth_providers') else []
         return {
-            "tools": ["hello_tool"],
-            "resources": ["hello_resource"],
-            "prompts": ["hello_prompt"],
-            "subscriptions": ["demo_subscription", "demo_notification"],
-            "auth": ["demo_auth_provider"],
+            "tools": tools,
+            "resources": resources,
+            "prompts": prompts,
+            "subscriptions": subscriptions,
+            "auth": auth,
         }

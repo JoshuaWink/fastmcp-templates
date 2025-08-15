@@ -2,45 +2,71 @@ import pytest
 from client.client import MCPClient
 
 class DummyFastMCP:
-    def __init__(self):
-        self.tools = type('T', (), {
-            'list': lambda self: ['tool1', 'tool2'],
-            'echo': lambda self, **kwargs: kwargs
-        })()
-        self.resources = type('R', (), {
-            'list': lambda self: ['res1', 'file'],
-            'file': lambda self: 'data'
-        })()
-        self.prompts = type('P', (), {
-            'list': lambda self: ['prompt1', 'greet'],
-            'greet': lambda self, user: f'Hello, {user}!'
-        })()
-        self.log = lambda message, level='info': f'LOG:{level}:{message}'
-        self.progress = lambda progress, detail=None: f'PROGRESS:{progress}:{detail}'
-        self.elicit = lambda schema, prompt=None: {'input': 'test'}
+    async def call_tool(self, tool_name, kwargs):
+        if tool_name == 'echo':
+            return kwargs
+        if tool_name == 'greet':
+            user = kwargs.get('user', 'World')
+            return f"Hello, {user}!"
+        return None
+
+    async def read_resource(self, resource_name):
+        if resource_name == 'file':
+            return 'data'
+        return None
+
+    async def render_prompt(self, prompt_name, kwargs):
+        if prompt_name == 'greet':
+            return f"Hello, {kwargs.get('user', 'World')}!"
+        return None
+
+    async def list_tools(self):
+        return ['tool1', 'tool2']
+
+    async def list_resources(self):
+        return ['res1', 'file']
+
+    async def list_prompts(self):
+        return ['prompt1', 'greet']
+
+    def log(self, message, level='info'):
+        return f'LOG:{level}:{message}'
+
+    def progress(self, progress, detail=None):
+        return f'PROGRESS:{progress}:{detail}'
+
+    def elicit(self, schema, prompt=None):
+        return {'input': 'test'}
 
 @pytest.fixture
 def dummy_client(monkeypatch):
     # Patch MCPClient to use DummyFastMCP
-    monkeypatch.setattr('client.client.FastMCPClient', lambda **cfg: DummyFastMCP())
-    return MCPClient({})
+    monkeypatch.setattr('client.client.FastMCPClient', lambda *args, **kwargs: DummyFastMCP())
+    dummy_config = {"mcpServers": {"dummy": {"type": "dummy"}}}
+    return MCPClient(dummy_config)
 
-def test_tools_call(dummy_client):
-    result = dummy_client.tools.call('echo', foo='bar')
+import pytest
+
+@pytest.mark.asyncio
+async def test_tools_call(dummy_client):
+    result = await dummy_client.tools.call('echo', foo='bar')
     assert result == {'foo': 'bar'}
 
-def test_resources_get(dummy_client):
-    result = dummy_client.resources.get('file')
+@pytest.mark.asyncio
+async def test_resources_get(dummy_client):
+    result = await dummy_client.resources.get('file')
     assert result == 'data'
 
-def test_prompts_render(dummy_client):
-    result = dummy_client.prompts.render('greet', user='Alice')
+@pytest.mark.asyncio
+async def test_prompts_render(dummy_client):
+    result = await dummy_client.prompts.render('greet', user='Alice')
     assert result == 'Hello, Alice!'
 
-def test_discovery_lists(dummy_client):
-    assert dummy_client.discovery.list_tools() == ['tool1', 'tool2']
-    assert dummy_client.discovery.list_resources() == ['res1', 'file']
-    assert dummy_client.discovery.list_prompts() == ['prompt1', 'greet']
+@pytest.mark.asyncio
+async def test_discovery_lists(dummy_client):
+    assert await dummy_client.discovery.list_tools() == ['tool1', 'tool2']
+    assert await dummy_client.discovery.list_resources() == ['res1', 'file']
+    assert await dummy_client.discovery.list_prompts() == ['prompt1', 'greet']
 
 def test_logging(dummy_client):
     assert dummy_client.logging.log('msg', level='warn') == 'LOG:warn:msg'
@@ -58,32 +84,41 @@ def test_notifications(dummy_client):
     notes = dummy_client.notifications.get_notifications()
     assert all('low' not in n for n in notes)
 
-def test_llm_simulated_tool_call(dummy_client):
+@pytest.mark.asyncio
+async def test_llm_simulated_tool_call(dummy_client):
     """
     Simulate an LLM calling the 'greet' tool and check the output matches what an LLM would expect.
     """
-    result = dummy_client.prompts.render('greet', user='Ford')
+    result = await dummy_client.prompts.render('greet', user='Ford')
     assert result == 'Hello, Ford!'
 
-def test_llm_json_tool_call(dummy_client):
-    from client.llm_router import LLMRouter
+
+import pytest
+
+@pytest.mark.asyncio
+async def test_llm_json_tool_call(dummy_client):
+    from client.app.llm_router import LLMRouter
     router = LLMRouter(dummy_client)
     llm_json = '{"tool": "greet", "args": {"user": "Ford"}}'
-    result = router.route(llm_json)
+    result = await router.route(llm_json)
     assert result == 'Hello, Ford!'
 
-def test_llm_json_resource_call(dummy_client):
-    from client.llm_router import LLMRouter
+
+@pytest.mark.asyncio
+async def test_llm_json_resource_call(dummy_client):
+    from client.app.llm_router import LLMRouter
     router = LLMRouter(dummy_client)
     llm_json = '{"resource": "file"}'
-    result = router.route(llm_json)
+    result = await router.route(llm_json)
     assert result == 'data'
 
-def test_llm_capabilities_exposed(dummy_client):
-    from client.llm_router import LLMRouter
+
+@pytest.mark.asyncio
+async def test_llm_capabilities_exposed(dummy_client):
+    from client.app.llm_router import LLMRouter
     import json
     router = LLMRouter(dummy_client)
-    caps = json.loads(router.get_llm_capabilities())
+    caps = json.loads(await router.get_llm_capabilities())
     assert 'greet' in caps['prompts']
     assert 'echo' in caps['tools'] or 'tool1' in caps['tools']
     assert 'file' in caps['resources']

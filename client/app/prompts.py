@@ -23,11 +23,11 @@ class PromptsClient:
     """
     Client for rendering server-side prompts via FastMCP.
     """
-    def __init__(self, fastmcp_client):
-        self._client = fastmcp_client
+    def __init__(self, mcp_client):
+        self._mcp_client = mcp_client
 
-    def render(self, prompt_name, **kwargs):
+    async def render(self, prompt_name, **kwargs):
         """
         Render a prompt by name with arguments.
         """
-        return getattr(self._client.prompts, prompt_name)(**kwargs)
+        return await self._mcp_client.render_prompt(prompt_name, kwargs)

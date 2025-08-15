@@ -24,37 +24,64 @@ class MCPClient:
             config_or_path (dict or str): Dict config or path to mcp.json config file.
         """
         config = self._load_config(config_or_path)
-        self._client = FastMCPClient(**config)
+        self._client = FastMCPClient(config)
         self.tools = ToolsClient(self._client)
         self.resources = ResourcesClient(self._client)
-        self.prompts = PromptsClient(self._client)
+        self.prompts = PromptsClient(self)
         self.notifications = NotificationsClient(self._client)
         self.logging = LoggingClient(self._client)
         self.elicitation = ElicitationClient(self._client)
         self.discovery = DiscoveryClient(self._client)
+        from client.app.subscribe import SubscriptionClient
+        self.subscriptions = SubscriptionClient(self)
+
+    async def render_prompt(self, prompt_name, kwargs):
+        """
+        Render a prompt by calling the prompt as a tool (if supported by the server).
+        Args:
+            prompt_name (str): The name of the prompt to render.
+            kwargs (dict): Arguments for the prompt.
+        Returns:
+            Any: The rendered prompt result.
+        """
+        # Many FastMCP servers expose prompts as tools with the same name
+        return await self._client.call_tool(prompt_name, kwargs)
 
     @staticmethod
-    def _load_config(config_or_path):
+    def _load_config(config_or_path, server_name=None):
         """
-        Load config from dict or JSON file path.
+        Loads and normalizes the config for FastMCPClient.
+        Accepts a dict or a path to a JSON/YAML config file.
+        Passes the config as-is (with 'mcpServers') to FastMCPClient.
         """
-        import os, json
+        import os, json, yaml
         if config_or_path is None:
-            # Try default mcp.json in cwd
             config_path = os.path.join(os.getcwd(), 'mcp.json')
             if os.path.exists(config_path):
                 with open(config_path) as f:
-                    return json.load(f)["servers"][0]
-            raise ValueError("No config provided and mcp.json not found.")
-        if isinstance(config_or_path, dict):
-            return config_or_path
-        if isinstance(config_or_path, str):
-            with open(config_or_path) as f:
-                return json.load(f)["servers"][0]
-        raise TypeError("config_or_path must be dict or str (path to mcp.json)")
+                    config = json.load(f)
+            else:
+                raise ValueError("No config provided and mcp.json not found.")
+        elif isinstance(config_or_path, str):
+            ext = os.path.splitext(config_or_path)[1]
+            with open(config_or_path, "r") as f:
+                if ext in (".yaml", ".yml"):
+                    config = yaml.safe_load(f)
+                else:
+                    config = json.load(f)
+        elif isinstance(config_or_path, dict):
+            config = config_or_path
+        else:
+            raise ValueError("Config must be dict or path")
 
-    def get_fastmcp_client(self):
-        """
-        Access the underlying FastMCP client for advanced usage.
-        """
-        return self._client
+        # Always pass the config as-is (with 'mcpServers') to FastMCPClient
+        if "mcpServers" in config:
+            print("[DEBUG] Passing config to FastMCPClient:", config)
+            return config
+        elif "servers" in config:
+            # For legacy support, convert 'servers' to 'mcpServers'
+            config["mcpServers"] = config.pop("servers")
+            print("[DEBUG] Passing config to FastMCPClient:", config)
+            return config
+        else:
+            raise ValueError("Config must contain 'mcpServers' or 'servers'")

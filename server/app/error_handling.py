@@ -10,7 +10,7 @@ def register_error_handlers(server):
     """
     Register error handling middleware or classes with the FastMCP server instance.
     """
-    @server.error_handler
+    @server.error_handler("demo_error_handler", "Demo error handler")
     def demo_error_handler(exc, context=None):
         """
         Demo error handler that logs and returns a standard error response.

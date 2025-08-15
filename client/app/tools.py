@@ -5,8 +5,14 @@ class ToolsClient:
     def __init__(self, fastmcp_client):
         self._client = fastmcp_client
 
-    def call(self, tool_name, **kwargs):
+    async def call(self, tool_name, **kwargs):
         """
         Call a tool by name with parameters.
         """
-        return getattr(self._client.tools, tool_name)(**kwargs)
+        return await self._client.call_tool(tool_name, kwargs)
+
+    async def list(self):
+        """
+        List available tools (with metadata).
+        """
+        return await self._client.list_tools()
